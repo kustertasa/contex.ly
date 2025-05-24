@@ -1,0 +1,32 @@
+.contex-ly-popup {
+  position: fixed;
+  z-index: 10000;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 400px;
+  max-height: 600px;
+  overflow: auto;
+}
+
+.contex-ly-popup select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.contex-ly-popup button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.contex-ly-popup button:hover {
+  background-color: #45a049;
+} 
