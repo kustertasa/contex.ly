@@ -8,7 +8,7 @@ module.exports = {
     popup: './src/popup.ts'
   },
   output: {
-    path: path.resolve(__dirname, 'extension-dist'),
+    path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
   },
   module: {

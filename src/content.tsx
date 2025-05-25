@@ -1,11 +1,11 @@
 // Content script that runs in the context of web pages
 try {
-  console.log('=== Contex.ly Content Script Started ===');
+console.log('=== Contex.ly Content Script Started ===');
   console.log('Document readyState:', document.readyState);
 
-  function logContent(message: string) {
-    console.log(`[Contex.ly Content] ${message}`);
-  }
+function logContent(message: string) {
+  console.log(`[Contex.ly Content] ${message}`);
+}
 
   // Log initial state
   logContent('Initializing content script...');
@@ -26,8 +26,10 @@ try {
   }
 
   const metaphorStyles = {
-    'pop-culture': 'Explain using references to movies, TV shows, celebrities, and current trends. Use well-known pop culture moments and characters that most people would recognize.',
+    'relationship': 'Explain using relationship dynamics, dating scenarios, and common couple experiences. Use examples of how partners interact, communicate, and grow together.',
+    'highschool-drama': 'Explain using typical high school scenarios, cliques, social dynamics, and teen drama. Think Mean Girls, popular kids vs outcasts, cafeteria politics, and after-school drama.',
     'kid-friendly': 'Explain as if talking to a 10-year-old child. Use simple words, fun examples, and relatable situations from a kid\'s perspective, like school, toys, or playground scenarios.',
+    'pop-culture': 'Explain using references to movies, TV shows, celebrities, and current trends. Use well-known pop culture moments and characters that most people would recognize.',
     'gossip-girl': 'Explain in the style of Gossip Girl - dramatic, scandalous, and full of Upper East Side drama. Use fashion, luxury, and social status references. Start with "Hey Upper East Siders..." and end with "XOXO, Gossip Girl"',
     'gen-z': 'Explain using Gen Z slang, TikTok references, and modern internet culture. Include emojis, current memes, and trending phrases. Keep it very casual and slightly chaotic.',
     'harry-potter': 'Explain using references to the Harry Potter universe, including magical concepts, Hogwarts houses, spells, and characters.',
@@ -232,6 +234,29 @@ try {
       font-size: 14px;
       font-weight: 500;
     }
+
+    .contex-ly-float-button {
+      position: absolute;
+      background: #2196F3;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      border: none;
+      display: none;
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      transition: all 0.2s ease;
+    }
+
+    .contex-ly-float-button:hover {
+      background: #1976D2;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
   `;
   document.head.appendChild(styleSheet);
 
@@ -252,13 +277,21 @@ try {
       let userPrompt = '';
 
       switch (style) {
-        case 'pop-culture':
-          systemPrompt += 'You specialize in using current pop culture references. Make sure to reference specific movies, shows, or celebrities that are widely known.';
-          userPrompt = `Explain this using popular movies, TV shows, or celebrity references: "${text}"`;
+        case 'relationship':
+          systemPrompt += 'You specialize in explaining things through relationship dynamics and dating experiences.';
+          userPrompt = `Explain this using relationship and dating metaphors: "${text}"`;
+          break;
+        case 'highschool-drama':
+          systemPrompt += 'You are explaining this through the lens of high school drama and teen social dynamics.';
+          userPrompt = `Explain this as if it were a high school drama situation: "${text}"`;
           break;
         case 'kid-friendly':
           systemPrompt += 'You are talking to a 10-year-old child. Use simple words and fun examples that kids can relate to.';
           userPrompt = `Explain this to a 10-year-old using things they understand like toys, school, or games: "${text}"`;
+          break;
+        case 'pop-culture':
+          systemPrompt += 'You specialize in using current pop culture references. Make sure to reference specific movies, shows, or celebrities that are widely known.';
+          userPrompt = `Explain this using popular movies, TV shows, or celebrity references: "${text}"`;
           break;
         case 'gossip-girl':
           systemPrompt += 'You are Gossip Girl. Be dramatic, scandalous, and use Upper East Side references.';
@@ -326,21 +359,21 @@ try {
     }
   }
 
-  // Create a notification element to confirm script loading
-  const notification = document.createElement('div');
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4CAF50;
-    color: white;
-    padding: 10px;
-    border-radius: 4px;
-    z-index: 10000;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  `;
-  notification.textContent = 'Contex.ly loaded!';
-  document.body.appendChild(notification);
+// Create a notification element to confirm script loading
+const notification = document.createElement('div');
+notification.style.cssText = `
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #4CAF50;
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+`;
+notification.textContent = 'Contex.ly loaded!';
+document.body.appendChild(notification);
   logContent('Notification added to page');
   setTimeout(() => {
     notification.remove();
@@ -358,12 +391,10 @@ try {
     const options = Object.entries(metaphorStyles)
       .map(([value, description]) => {
         const displayName = {
-          'pop-culture': '🎬 Pop Culture',
+          'relationship': '💕 Relationship',
+          'highschool-drama': '🏫 High School Drama',
           'kid-friendly': '🎈 Kid-Friendly',
-          'gossip-girl': '💋 Gossip Girl',
-          'gen-z': '✨ Gen Z',
-          'harry-potter': '⚡ Harry Potter',
-          'marvel': '🦸‍♂️ Marvel'
+          'pop-culture': '🎬 Pop Culture'
         }[value] || value;
         
         return `<option value="${value}" title="${description}">${displayName}</option>`;
@@ -373,7 +404,7 @@ try {
     return `
       <div>
         <label class="contex-ly-label">
-          Choose your vibe:
+          Choose your explanation style:
         </label>
         <select id="metaphor-style" class="contex-ly-select">
           ${options}
@@ -506,6 +537,56 @@ try {
         
         controlsDiv.appendChild(selectWrapper);
         contentDiv.appendChild(controlsDiv);
+
+        // Add event listener for regenerate button
+        const regenerateButton = selectWrapper.querySelector('#regenerate') as HTMLButtonElement;
+        const styleSelect = selectWrapper.querySelector('#metaphor-style') as HTMLSelectElement;
+        
+        if (regenerateButton && styleSelect) {
+          regenerateButton.addEventListener('click', async () => {
+            const selectedStyle = styleSelect.value;
+            logContent(`Regenerating with style: ${selectedStyle}`);
+            
+            // Show loading state
+            explanationDiv.innerHTML = `
+              <div style="text-align: center; padding: 20px;">
+                <div style="margin-bottom: 12px; color: #666;">
+                  Cooking up a take...
+                </div>
+                <div style="color: #666; font-size: 14px;">
+                  Just a moment while we spice things up in ${selectedStyle} style
+                </div>
+              </div>
+            `;
+            
+            try {
+              const newExplanation = await generateExplanation(currentText, selectedStyle);
+              const isError = newExplanation.startsWith('Error');
+              explanationDiv.innerHTML = isError ? `
+                <div style="color: #f44336;">
+                  <strong>Error:</strong><br>
+                  ${newExplanation}
+                </div>
+              ` : `
+                <div>
+                  <strong>Explanation:</strong>
+                  <div style="margin-top: 8px; line-height: 1.6;">
+                    ${newExplanation}
+                  </div>
+                </div>
+              `;
+            } catch (error) {
+              const e = error as Error;
+              logContent(`Error regenerating explanation: ${e.message}`);
+              explanationDiv.innerHTML = `
+                <div style="color: #f44336;">
+                  <strong>Error:</strong><br>
+                  Failed to generate explanation: ${e.message}
+                </div>
+              `;
+            }
+          });
+        }
       }
 
       container.appendChild(contentDiv);
@@ -533,74 +614,109 @@ try {
       // Try to show a fallback notification
       const errorNotification = document.createElement('div');
       errorNotification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
         background: #f44336;
-        color: white;
-        padding: 10px;
-        border-radius: 4px;
-        z-index: 10000;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      `;
+      color: white;
+      padding: 10px;
+      border-radius: 4px;
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
       errorNotification.textContent = `Error: ${e.message}`;
       document.body.appendChild(errorNotification);
       setTimeout(() => errorNotification.remove(), 5000);
     }
   }
 
-  // Listen for messages from the background script
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    logContent(`Received message: ${JSON.stringify(request)}`);
-    
+// Listen for messages from the background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  logContent(`Received message: ${JSON.stringify(request)}`);
+  
     if (request.type === 'EXPLAIN_TEXT' && request.text) {
       logContent(`Processing explanation request for text: ${request.text}`);
       
-      // Show loading state
-      showResult(`
-        <div style="text-align: center; padding: 20px;">
-          <div style="margin-bottom: 12px; color: #666;">
-            Generating explanation...
+      // Show initial style selection UI
+      const initialContent = `
+        <div>
+          <strong>Selected Text:</strong>
+          <div class="contex-ly-text-container">
+            "${request.text}"
           </div>
-          <div style="color: #666; font-size: 14px;">
-            Please wait while we craft your explanation
+          <div style="margin-top: 16px;">
+            <strong>How would you like this explained?</strong>
           </div>
         </div>
-      `, request.text, false);
+      `;
       
-      // Generate the explanation with default style
-      generateExplanation(request.text, 'pop-culture').then(explanation => {
-        const isError = explanation.startsWith('Error');
-        showResult(`
-          ${isError ? `
-            <div style="color: #f44336;">
-              <strong>Error:</strong><br>
-              ${explanation}
-            </div>
-          ` : `
-            <div>
-              <strong>Explanation:</strong>
-              <div style="margin-top: 8px; line-height: 1.6;">
-                ${explanation}
+      showResult(initialContent, request.text, true);
+
+      // Find and modify the regenerate button for first use
+      const regenerateButton = document.querySelector('#regenerate') as HTMLButtonElement;
+      if (regenerateButton) {
+        regenerateButton.textContent = '✨ Generate Explanation';
+      }
+
+      // Add event listener for the regenerate/generate button
+      const styleSelect = document.querySelector('#metaphor-style') as HTMLSelectElement;
+      if (regenerateButton && styleSelect) {
+        regenerateButton.addEventListener('click', async () => {
+          const selectedStyle = styleSelect.value;
+          const explanationDiv = document.querySelector('.contex-ly-explanation') as HTMLElement;
+          
+          if (explanationDiv) {
+            // Show loading state
+            explanationDiv.innerHTML = `
+              <div style="text-align: center; padding: 20px;">
+                <div style="margin-bottom: 12px; color: #666;">
+                  Cooking up a take...
+                </div>
+                <div style="color: #666; font-size: 14px;">
+                  Just a moment while we spice things up in ${selectedStyle} style
+                </div>
               </div>
-            </div>
-          `}
-        `, request.text);
-      }).catch(error => {
-        logContent(`Error in explanation promise: ${error.message}`);
-        showResult(`
-          <div style="color: #f44336;">
-            <strong>Error:</strong><br>
-            Failed to generate explanation: ${error.message}
-          </div>
-        `, request.text);
-      });
+            `;
+
+            try {
+              const explanation = await generateExplanation(request.text, selectedStyle);
+              const isError = explanation.startsWith('Error');
+              
+              explanationDiv.innerHTML = isError ? `
+                <div style="color: #f44336;">
+                  <strong>Error:</strong><br>
+                  ${explanation}
+                </div>
+              ` : `
+                <div>
+                  <strong>Explanation:</strong>
+                  <div style="margin-top: 8px; line-height: 1.6;">
+                    ${explanation}
+                  </div>
+                </div>
+              `;
+
+              // Change button text after first generation
+              regenerateButton.textContent = '✨ Regenerate with Selected Style';
+            } catch (error) {
+              const e = error as Error;
+              logContent(`Error generating explanation: ${e.message}`);
+              explanationDiv.innerHTML = `
+                <div style="color: #f44336;">
+                  <strong>Error:</strong><br>
+                  Failed to generate explanation: ${e.message}
+                </div>
+              `;
+            }
+          }
+        });
+      }
       
-      sendResponse({ status: 'success' });
-    }
-    
-    return true;
-  });
+    sendResponse({ status: 'success' });
+  }
+  
+  return true;
+});
 
   // Update the document-level event listeners
   document.addEventListener('mousedown', (e) => {
@@ -618,6 +734,136 @@ try {
       if (container && container.style.display === 'block') {
         closeContainer();
       }
+    }
+  });
+
+  // Create floating button
+  const floatButton = document.createElement('button');
+  floatButton.className = 'contex-ly-float-button';
+  floatButton.textContent = '✨ Reframe';
+  document.body.appendChild(floatButton);
+
+  // Handle text selection
+  let selectedText = '';
+  document.addEventListener('mouseup', (e) => {
+  const selection = window.getSelection();
+    const text = selection?.toString().trim();
+    
+    if (text && text !== selectedText) {
+      selectedText = text;
+      const range = selection?.getRangeAt(0);
+      const rect = range?.getBoundingClientRect();
+      
+      if (rect) {
+        // Position the button below and to the right of the selection
+        const scrollX = window.scrollX || window.pageXOffset;
+        const scrollY = window.scrollY || window.pageYOffset;
+        
+        floatButton.style.display = 'block';
+        floatButton.style.left = `${scrollX + rect.left + (rect.width / 2) - 50}px`;
+        floatButton.style.top = `${scrollY + rect.bottom + 10}px`;
+      }
+    } else if (!text) {
+      // Hide button if no text is selected
+      selectedText = '';
+      floatButton.style.display = 'none';
+    }
+  });
+
+  // Handle button click
+  floatButton.addEventListener('click', () => {
+    if (selectedText) {
+      // Hide the float button
+      floatButton.style.display = 'none';
+      
+      // Show initial style selection UI
+      const initialContent = `
+        <div>
+          <strong>Selected Text:</strong>
+          <div class="contex-ly-text-container">
+            "${selectedText}"
+          </div>
+          <div style="margin-top: 16px;">
+            <strong>How would you like this explained?</strong>
+          </div>
+        </div>
+      `;
+      
+      showResult(initialContent, selectedText, true);
+
+      // Find and modify the regenerate button for first use
+      const regenerateButton = document.querySelector('#regenerate') as HTMLButtonElement;
+      if (regenerateButton) {
+        regenerateButton.textContent = '✨ Generate Explanation';
+      }
+
+      // Add event listener for the regenerate/generate button
+      const styleSelect = document.querySelector('#metaphor-style') as HTMLSelectElement;
+      if (regenerateButton && styleSelect) {
+        regenerateButton.addEventListener('click', async () => {
+          const selectedStyle = styleSelect.value;
+          const explanationDiv = document.querySelector('.contex-ly-explanation') as HTMLElement;
+          
+          if (explanationDiv) {
+            // Show loading state
+            explanationDiv.innerHTML = `
+              <div style="text-align: center; padding: 20px;">
+                <div style="margin-bottom: 12px; color: #666;">
+                  Cooking up a take...
+                </div>
+                <div style="color: #666; font-size: 14px;">
+                  Just a moment while we spice things up in ${selectedStyle} style
+    </div>
+    </div>
+  `;
+
+            try {
+              const explanation = await generateExplanation(selectedText, selectedStyle);
+              const isError = explanation.startsWith('Error');
+              
+              explanationDiv.innerHTML = isError ? `
+                <div style="color: #f44336;">
+                  <strong>Error:</strong><br>
+                  ${explanation}
+                </div>
+              ` : `
+                <div>
+                  <strong>Explanation:</strong>
+                  <div style="margin-top: 8px; line-height: 1.6;">
+                    ${explanation}
+                  </div>
+                </div>
+              `;
+
+              // Change button text after first generation
+              regenerateButton.textContent = '✨ Regenerate with Selected Style';
+            } catch (error) {
+              const e = error as Error;
+              logContent(`Error generating explanation: ${e.message}`);
+              explanationDiv.innerHTML = `
+                <div style="color: #f44336;">
+                  <strong>Error:</strong><br>
+                  Failed to generate explanation: ${e.message}
+                </div>
+              `;
+            }
+          }
+        });
+      }
+    }
+  });
+
+  // Hide float button when clicking outside
+document.addEventListener('mousedown', (e) => {
+    if (e.target !== floatButton) {
+      floatButton.style.display = 'none';
+    }
+  });
+
+  // Also hide float button when pressing Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      floatButton.style.display = 'none';
     }
   });
 
