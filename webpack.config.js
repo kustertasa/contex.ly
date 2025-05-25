@@ -1,7 +1,8 @@
 const path = require('path');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
+  devtool: false,
   entry: {
     background: './src/background.ts',
     content: './src/content.tsx',
@@ -11,11 +12,23 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
   },
+  optimization: {
+    minimize: false
+  },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              compilerOptions: {
+                module: 'es2015',
+              },
+            },
+          },
+        ],
         exclude: /node_modules/,
       },
     ],
